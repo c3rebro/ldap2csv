@@ -22,8 +22,8 @@ namespace LDAP2CSV
 		// Create byte array for additional entropy when using Protect method.
 		static byte [] s_aditionalEntropy = Encoding.Default.GetBytes(
 			string.Format("{0},{1},{2}",
-			              Assembly.GetExecutingAssembly().GetName().Version.MajorRevision,
-			              Assembly.GetExecutingAssembly().GetName().Version.MinorRevision,
+			              Assembly.GetExecutingAssembly().GetName().Version.Major,
+			              Assembly.GetExecutingAssembly().GetName().Version.Minor,
 			              Assembly.GetExecutingAssembly().GetName().Version.Build));
 		
 		static string pathToCredFile = Path.Combine(Environment.CurrentDirectory, "cred.lcv");
