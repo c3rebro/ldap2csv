@@ -4,7 +4,7 @@
 LDAP2CSV usage:
   
 ldap2csv.exe LDAP://10.0.0.4:389/ou=people,dc=example,dc=de -u username -p password 
--f (&(ou=people)) -a sn,givenName,ou -o \"D:\\Path\\To\\Destination.csv  
+-f (&(ou=people)) -a sn,givenName,ou -o \"D:\\Path\\To\\Destination.csv"  
   
 ### parameters  
   
