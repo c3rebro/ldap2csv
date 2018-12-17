@@ -1,5 +1,5 @@
 # ldap2csv
-### export ldap query result to csv file
+### export an ldap query result to a csv file on windows operating systems
 
 LDAP2CSV usage:
   
@@ -17,7 +17,22 @@ optional parmeter -s: csv seperator char
 supported attributes: maybe all ASCII characters  
 **Hint:** If omitted, comma will be used as seperator  
 usage: -s ;  
-  
+
+optional parmeter -p: ldap protocol version  
+supported attributes: 2, 3  
+**Hint:** If omitted, version 3 is assumed  
+usage: -p 2 ; 
+
+optional parmeter -ssl: use ssl encryption  
+supported attributes: none  
+**Hint:** If omitted, basic authentication will be used  
+usage: -ssl ; 
+
+optional parmeter -t: timeout in minutes before a connection\nor a ldap query will raise a timeout exception
+supported attributes: 1 - n  
+**Hint:** If omitted, timeout will be set to 10 minutes  
+usage: -t 5; 
+
 optional parameter -c: encryption of credentials  
 this will create an encrypted \"cred.lcv\" in the root directory of ldap2csv.exe  
 where the credentials will be stored safely. May need elevated privileges "Run As Administrator"  
