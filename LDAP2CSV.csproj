@@ -26,7 +26,6 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <StartAction>Project</StartAction>
-    <StartArguments>LDAP://10.0.0.4:389/ou=people,dc=mainframe,dc=shansen-online,dc=de -C -a cn,uniquemember,sn,givenName,uid,asdasd3qad32 -s ; -o C:\temp\export.csv</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>

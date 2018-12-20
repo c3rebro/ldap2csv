@@ -62,7 +62,7 @@ namespace LDAP2CSV
 		{
 			try
 			{
-				//Decrypt the data using DataProtectionScope.CurrentUser.
+				//Decrypt the data
 				return Encoding.Default.GetString(
 					ProtectedData.Unprotect(File.ReadAllBytes(pathToCredFile), s_aditionalEntropy, DataProtectionScope.LocalMachine )
 				);

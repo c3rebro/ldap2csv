@@ -82,15 +82,15 @@ namespace LDAP2CSV
 						string server = args[0].Replace("LDAP://",string.Empty).Remove(args[0].Replace("LDAP://",string.Empty).IndexOf('/'), dn.Length + 1);
 						
 						LdapDirectoryIdentifier ldapDir = new LdapDirectoryIdentifier(server);
+						
 						LdapConnection ldapConnection = new LdapConnection(ldapDir);
 						//protocol version specified? use version 3 if not
-						ldapConnection.SessionOptions.ProtocolVersion = args.Contains("-p") ? int.Parse(args[arguments.IndexOf("-p") +1 ]) : 3;
+						ldapConnection.SessionOptions.ProtocolVersion = args.Contains("-v") ? int.Parse(args[arguments.IndexOf("-v") +1 ]) : 3;
 						//use ssl?
 						ldapConnection.SessionOptions.SecureSocketLayer = args.Contains("-ssl") ? true : false;
 						//You may need to try different types of Authentication depending on your setup
 						ldapConnection.AuthType = (args.Contains("-u")||args.Contains("-C")) ? AuthType.Basic : AuthType.Anonymous;
 						
-
 						//use credentials from encrypted credential file?
 						if(args.Contains("-C"))	{
 							try{
@@ -105,13 +105,23 @@ namespace LDAP2CSV
 							}
 							catch(Exception e) {
 								LogWriter.CreateLogEntry(string.Format("ERROR:{0} {1}", e.Message, (e.InnerException != null) ? e.InnerException.Message : string.Empty));
+								ldapConnection.Dispose();
 								return 1;
 							}
 						}
 						
-						else {
+						else if (args.Contains("-u")){
 							NetworkCredential cred =
 								new NetworkCredential(args[arguments.IndexOf("-u") +1 ],args[arguments.IndexOf("-p") +1 ]);
+							
+							ldapConnection.Bind(cred);
+						}
+						
+						else {
+							NetworkCredential cred =
+								new NetworkCredential();
+							cred.Password = null;
+							cred.UserName = null;
 							
 							ldapConnection.Bind(cred);
 						}
@@ -144,6 +154,7 @@ namespace LDAP2CSV
 								}
 								catch(Exception e) {
 									LogWriter.CreateLogEntry(string.Format("ERROR:{0} {1}", e.Message, (e.InnerException != null) ? e.InnerException.Message : string.Empty));
+									ldapConnection.Dispose();
 									return 1;
 								}
 							}
@@ -171,6 +182,7 @@ namespace LDAP2CSV
 									break;
 									
 								default:
+									ldapConnection.Dispose();
 									throw new ArgumentException("Unkown Encoding: Expected one of the following Encoding types: UTF8, ANSI or Unicode");
 							}
 						}
@@ -203,7 +215,9 @@ namespace LDAP2CSV
 							}
 							
 							try {
-								if(!string.IsNullOrEmpty(attrString)) {
+								//remove last seperator
+								if(!string.IsNullOrEmpty(attrString)){
+									attrString = attrString.Remove(attrString.Length - 1, 1);
 									
 									//output to console instead of csv?
 									if(args.Contains("-o")){
@@ -226,17 +240,15 @@ namespace LDAP2CSV
 										Console.WriteLine(attrString + "\n");
 									}
 								}
-
+								
 								
 							} catch (Exception e) {
 								LogWriter.CreateLogEntry(string.Format("ERROR:{0} {1}", e.Message, (e.InnerException != null) ? e.InnerException.Message : string.Empty));
 								//nothing found?, dont worry -> go on
 								continue;
 							}
-							//remove last seperator
-							if(!string.IsNullOrEmpty(attrString))
-								attrString = attrString.Remove(attrString.Length - 1, 1);
 						}
+						ldapConnection.Dispose();
 					}
 					catch (Exception e)	{
 						LogWriter.CreateLogEntry(string.Format("ERROR:{0} {1}", e.Message, (e.InnerException != null) ? e.InnerException.Message : string.Empty));
@@ -251,6 +263,5 @@ namespace LDAP2CSV
 				return 1;
 			}
 		}
-		
 	}
 }
