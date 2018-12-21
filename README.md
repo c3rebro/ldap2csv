@@ -18,10 +18,10 @@ supported attributes: maybe all ASCII characters
 **Hint:** If omitted, comma will be used as seperator  
 usage: -s ;  
 
-optional parmeter -p: ldap protocol version  
+optional parmeter -v: ldap protocol version  
 supported attributes: 2, 3  
 **Hint:** If omitted, version 3 is assumed  
-usage: -p 2 ; 
+usage: -v 2 ; 
 
 optional parmeter -ssl: use ssl encryption  
 supported attributes: none  
