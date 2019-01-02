@@ -155,8 +155,19 @@ namespace LDAP2CSV
 				else {
 					try	{
 						//extract server and dn from ldap path attribute
-						string dn = _arguments[0].Replace("LDAP://",string.Empty).Remove(0,_arguments[0].Replace("LDAP://",string.Empty).IndexOf('/') +1);
-						string server = _arguments[0].Replace("LDAP://",string.Empty).Remove(_arguments[0].Replace("LDAP://",string.Empty).IndexOf('/'), dn.Length + 1);
+						string dn = _arguments[0].ToUpper().Replace("LDAP://",string.Empty)
+							.Replace("LDAPS://",string.Empty)
+							.Remove(0,_arguments[0].ToUpper()
+							        .Replace("LDAP://",string.Empty).Replace("LDAPS://",string.Empty)
+							        .IndexOf('/') +1)
+							.ToLower();
+						
+						string server = _arguments[0].ToUpper().Replace("LDAP://",string.Empty)
+							.Replace("LDAPS://",string.Empty)
+							.Remove(_arguments[0].ToUpper()
+							        .Replace("LDAP://",string.Empty).Replace("LDAPS://",string.Empty)
+							        .IndexOf('/'), dn.Length + 1)
+							.ToLower();
 						
 						LdapDirectoryIdentifier ldapDir = new LdapDirectoryIdentifier(server);
 						
