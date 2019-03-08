@@ -32,6 +32,8 @@ namespace LDAP2CSV
 		
 		static int _resultsCounter;
 		
+		static string[] attr;
+		
 		public static int Main(string[] args){
 			try	{
 				Version v = Assembly.GetExecutingAssembly().GetName().Version;
@@ -261,13 +263,15 @@ namespace LDAP2CSV
 							//thread alive in order to see anything
 							//we can use the same searcher for multiple requests - we just have to track which one
 							//is which, so we can interpret the results later in our events.
+							attr = _arguments.Contains("-a") ? _arguments[_arguments.IndexOf("-a") +1 ].Split(new char[]{',',';'}) : new string[]{"*"};
+							
 							_guid = searcher.BeginPagedSearch(
 								//set searchbase
 								string.IsNullOrWhiteSpace(dn) ? "*" : dn,
 								//set filter
 								_arguments.Contains("-f") ? _arguments[_arguments.IndexOf("-f") +1 ] : "(objectClass=*)",
 								//set attributes
-								_arguments.Contains("-a") ? _arguments[_arguments.IndexOf("-a") +1 ].Split(new char[]{',',';'}) : new string[]{"*"},
+								attr,
 								150);
 
 							//we will use a reset event to signal when we are done (using Sleep() on
@@ -366,22 +370,28 @@ namespace LDAP2CSV
 				
 				foreach(SearchResultEntry searchResult in e.Results) {
 					IDictionaryEnumerator attribEnum = searchResult.Attributes.GetEnumerator();
-
-					//Iterate through the result attributes
-					while (attribEnum.MoveNext())
+					
+					foreach(string a in attr)
 					{
-						//Attributes have one or more values so we iterate through all the values of each attribute
-						DirectoryAttribute subAttrib = (DirectoryAttribute)attribEnum.Value;
-						
-						for (int i = 0; i < subAttrib.Count; i++)
+						//Iterate through the result attributes
+						while (attribEnum.MoveNext())
 						{
-							//Add Attributes to string and seperate with a space character if more that one value is present
-							attrString += subAttrib[i].ToString() + ((subAttrib.Count > 1) ? " " : string.Empty);
+							//Attributes have one or more values so we iterate through all the values of each attribute
+							DirectoryAttribute subAttrib = (DirectoryAttribute)attribEnum.Value;
+							
+							if(attribEnum.Key.ToString().Normalize().ToLower() == a.Normalize().ToLower())
+							{
+								for (int i = 0; i < subAttrib.Count; i++)
+								{
+									//Add Attributes to string and seperate with a space character if more that one value is present
+									attrString += subAttrib[i].ToString() + ((subAttrib.Count > 1) ? " " : string.Empty);
+								}
+								
+								//separate each attribute with comma or supplied separation character
+								attrString += _arguments.Contains("-s") ? _arguments[_arguments.IndexOf("-s") +1 ] : ",";
+							}
 						}
-						
-						//separate each attribute with comma or supplied separation character
-						attrString += _arguments.Contains("-s") ? _arguments[_arguments.IndexOf("-s") +1 ] : ",";
-						
+						attribEnum.Reset();
 					}
 					
 					//remove last seperator
