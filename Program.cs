@@ -367,59 +367,49 @@ namespace LDAP2CSV
 				else {
 					textEncoding = Encoding.Default;
 				}
-				
-				foreach(SearchResultEntry searchResult in e.Results) {
-					IDictionaryEnumerator attribEnum = searchResult.Attributes.GetEnumerator();
-					
-					foreach(string a in attr)
-					{
-						//Iterate through the result attributes
-						while (attribEnum.MoveNext())
-						{
-							//Attributes have one or more values so we iterate through all the values of each attribute
-							DirectoryAttribute subAttrib = (DirectoryAttribute)attribEnum.Value;
-							
-							if(attribEnum.Key.ToString().Normalize().ToLower() == a.Normalize().ToLower())
-							{
-								for (int i = 0; i < subAttrib.Count; i++)
-								{
-									//Add Attributes to string and seperate with a space character if more that one value is present
-									attrString += subAttrib[i].ToString() + ((subAttrib.Count > 1) ? " " : string.Empty);
-								}
-								
-								//separate each attribute with comma or supplied separation character
-								attrString += _arguments.Contains("-s") ? _arguments[_arguments.IndexOf("-s") +1 ] : ",";
-							}
-						}
-						attribEnum.Reset();
-					}
-					
-					//remove last seperator
-					if(!string.IsNullOrEmpty(attrString)){
-						attrString = attrString.Remove(attrString.Length - 1, 1);
-						
-						//output to console instead of csv?
-						if(_arguments.Contains("-o")){
-							
-							using (FileStream fs = new FileStream(_arguments[_arguments.IndexOf("-o") + 1], FileMode.Append, FileAccess.Write)) {
-								using (StreamWriter sw = new StreamWriter(fs, textEncoding)) {
-									
-									sw.WriteLine(attrString);
-									
-									attrString = string.Empty;
-									
-									sw.Close();
-								}
-							}
-						}
-						
-						//prefer console output?
-						else {
-							Console.WriteLine(attrString + "\n");
-						}
-					}
-				}
-			}
+
+                foreach (SearchResultEntry searchResult in e.Results)
+                {
+                    List<string> rowValues = new List<string>();
+
+                    foreach (string a in attr)
+                    {
+                        string value = "";
+
+                        if (searchResult.Attributes.Contains(a))
+                        {
+                            DirectoryAttribute subAttrib = searchResult.Attributes[a];
+                            List<string> values = new List<string>();
+
+                            foreach (var v in subAttrib)
+                            {
+                                values.Add(v.ToString());
+                            }
+
+                            value = string.Join(" ", values); // use space between multiple values
+                        }
+
+                        rowValues.Add(value);
+                    }
+
+                    string separator = _arguments.Contains("-s") ? _arguments[_arguments.IndexOf("-s") + 1] : ",";
+
+                    string csvLine = string.Join(separator, rowValues);
+
+                    if (_arguments.Contains("-o"))
+                    {
+                        using (FileStream fs = new FileStream(_arguments[_arguments.IndexOf("-o") + 1], FileMode.Append, FileAccess.Write))
+                        using (StreamWriter sw = new StreamWriter(fs, textEncoding))
+                        {
+                            sw.WriteLine(csvLine);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(csvLine + "\n");
+                    }
+                }
+            }
 			catch (Exception ex) {
 				LogWriter.CreateLogEntry(string.Format("ERROR:{0} {1}", ex.Message, (ex.InnerException != null) ? ex.InnerException.Message : string.Empty));
 			}
