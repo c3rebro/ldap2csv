@@ -10,4 +10,7 @@
     <FallbackCulture>de-DE</FallbackCulture>
     <VerifyUploadedFiles>false</VerifyUploadedFiles>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <StartArguments>LDAP://10.0.0.4:389/ou=users,dc=shansen-online,dc=de -s %3b -C -a sn,givenName -o C:\temp\export.csv</StartArguments>
+  </PropertyGroup>
 </Project>

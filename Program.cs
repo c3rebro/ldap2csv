@@ -383,7 +383,23 @@ namespace LDAP2CSV
 
                             foreach (var v in subAttrib)
                             {
-                                values.Add(v.ToString());
+                                if (v is byte[] bytes)
+                                {
+                                    // Convert byte[] to base64 string, or hex, or UTF8 string
+                                    // Here we’ll try UTF8, fallback to base64 if it fails
+                                    try
+                                    {
+                                        values.Add(Encoding.UTF8.GetString(bytes));
+                                    }
+                                    catch
+                                    {
+                                        values.Add(Convert.ToBase64String(bytes));
+                                    }
+                                }
+                                else
+                                {
+                                    values.Add(v.ToString());
+                                }
                             }
 
                             value = string.Join(" ", values); // use space between multiple values
